@@ -1,5 +1,7 @@
 import re
 import collections
+import random
+import graphviz
 from functools import wraps, partial
 
 
@@ -229,10 +231,98 @@ class SentenciaGeneral(FormulaBooleana):
         elif self._acepta('CONST'):
             return self.asig[self.current_token.value]
 
+class sentenciaDot(FormulaBooleana):
+
+    '''
+    Para generar el grafo, los nombres de los nodos seran un numero entero, 
+    y la etiqueta sera el simbolo correspondiente de la gramatica.
+
+    Para generar los nodos sin que la recursividad suponga un problema, cada nodo (sentencia, clausula y conjuncion)
+    conoceran su numero de nodo(se le pasa su nodo padre por parámetro) y se encargarán de dar un número de nodo a sus hijos, 
+    mientras se tiene un contador de nodos como atributo de la clase para que los nodos le vayan incrementando.
+    
+    De esta forma generaremos el arbol de derivacion en preorden(Primero el padre y despues los hijos, de izq a der)
+    '''
+
+    def __init__(self):
+        self.g = graphviz.Digraph(comment='Arbol de derivacion')    #Grafo
+        self.n = 0                                                  #Contador de nodos
+        self.g.node('0', 'Sentencia')                               #Creamos la raiz
+
+    def render(self):
+        self.g.render('ArbolDerivacion.gv', view=True)
+
+
+    def formula(self, nodo=0):
+        '''
+        formula : conjuncion | conjuncion ∨ formula
+        '''
+        self.n += 1
+
+        self.g.node(str(self.n), 'Conjuncion')
+        self.g.edge(str(nodo), str(self.n))
+
+        formula_value = self.conjuncion(self.n)
+
+        if self._acepta('OR'):
+            self.g.node(str(self.n), 'OR')
+            self.g.edge(str(nodo), str(self.n))
+            self.n += 1
+
+            self.g.node(str(self.n), 'Sentencia')
+            self.g.edge(str(nodo), str(self.n))
+
+            formula_value = formula_value | self.formula(self.n)
+        return formula_value
+
+    def conjuncion(self, nodo):
+        '''
+        conjuncion : clausula | clausula ∧ conjuncion
+        '''
+        self.n += 1
+        self.g.node(str(self.n), 'Clausula')
+        self.g.edge(str(nodo), str(self.n))
+        
+        conj_value = self.clausula(self.n)
+        
+         
+        if self._acepta('AND'):
+            self.g.node(str(self.n), 'AND')
+            self.g.edge(str(nodo), str(self.n))
+
+            self.n += 1
+
+            self.g.node(str(self.n), 'Conjuncion')
+            self.g.edge(str(nodo), str(self.n))
+            conj_value = conj_value & self.conjuncion(self.n)
+        return conj_value
+
+    def clausula(self, nodo):
+        '''
+        clausula : CONST | (Formula)
+
+        '''
+        self.n += 1
+
+        # Si aparece un parentesis
+        if self._acepta('LPAREN'):
+            self.g.node(str(self.n), '(Sentencia)')
+            self.g.edge(str(nodo), str(self.n))
+            formula_value = self.formula(self.n)
+            self.n += 1
+            self._espera('RPAREN')
+            return formula_value
+        elif self._acepta('CONST'):
+            self.g.node(str(self.n), self.current_token.value)
+            self.g.edge(str(nodo), str(self.n))
+            self.n += 1
+            return self.asig[self.current_token.value]
+
 
 
 if __name__ == '__main__':
 
+    '''
     iters=1000
 
     sentencias=[]
@@ -243,10 +333,16 @@ if __name__ == '__main__':
 
     e = FormulaBooleana()
     print(e.parse('x ∨ (y ∧ y ∧ x)', {'x': False, 'y': False}))
+    '''
 
+    #Prueba del apartado 1
+    '''
     e = SentenciaGeneral()
     print(e.parse('x ∨ ¬(y ∧ ¬y ∧ x)',{'x':True, 'y':False}))
+    '''
 
+    #Prueba del apartado 2
+    '''
     for i in range(iters):
         e = GeneracionSentencias(i)
         sentencias.insert(i,e.sentencia())
@@ -255,3 +351,8 @@ if __name__ == '__main__':
 
     print(sentencias)
     print(sentencias_not)
+    '''
+
+    e = sentenciaDot()
+    e.parse('x ∨ (y ∧ y ∧ x)', {'x': False, 'y': False})
+    e.render()
