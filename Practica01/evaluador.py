@@ -2,6 +2,7 @@ import re
 import collections
 from functools import wraps, partial
 
+
 def debug_method(func= None, prefix = ''):
     if func is None:
         return partial(debug, prefix = prefix)
@@ -13,30 +14,32 @@ def debug_method(func= None, prefix = ''):
             return func(*args,**kwargs)
         return wrapper
 
+
 def debug_class(cls):
     for key, val in vars(cls).items():
         if callable(val):
             setattr(cls, key, debug_method(val))
         return cls
 
+
 print("Evaluado el codigo")
 
 separacion = 60
 
-CONST     = r'(?P<CONST>[a-z][A-Z]*)'
-NUM     = r'(?P<NUM>\d+)'
-PLUS    = r'(?P<PLUS>\+)'
-MINUS   = r'(?P<MINUS>-)'
-OR    = r'(?P<OR>∨)'
-AND   = r'(?P<AND>∧)'
-NOT   = r'(?P<NOT>¬)'
-TIMES   = r'(?P<TIMES>\*)'
-DIVIDE  = r'(?P<DIVIDE>/)'
-LPAREN  = r'(?P<LPAREN>\()'
-RPAREN  = r'(?P<RPAREN>\))'
-WS      = r'(?P<WS>\s+)'
-VERDADERO  = r'(?P<VERDADERO>TRUE)'
-FALSO  = r'(?P<FALSO>FALSE)'
+CONST = r'(?P<CONST>[a-z][A-Z]*)'
+NUM = r'(?P<NUM>\d+)'
+PLUS = r'(?P<PLUS>\+)'
+MINUS = r'(?P<MINUS>-)'
+OR = r'(?P<OR>∨)'
+AND = r'(?P<AND>∧)'
+NOT = r'(?P<NOT>¬)'
+TIMES = r'(?P<TIMES>\*)'
+DIVIDE = r'(?P<DIVIDE>/)'
+LPAREN = r'(?P<LPAREN>\()'
+RPAREN = r'(?P<RPAREN>\))'
+WS = r'(?P<WS>\s+)'
+VERDADERO = r'(?P<VERDADERO>TRUE)'
+FALSO = r'(?P<FALSO>FALSE)'
 
 master_pattern = re.compile('|'.join((CONST,NUM, PLUS, MINUS, OR, AND, NOT,
                                       TIMES, DIVIDE, LPAREN, RPAREN, WS,
@@ -52,12 +55,13 @@ def lista_tokens(pattern, text):
         if token.type != 'WS':
             yield token
 
-print(list(lista_tokens(master_pattern,'x ∨ y v z' )))
 
 
-class SentenciaBooleana:
+
+
+class FormulaBooleana:
     '''
-    Pequeña implementación de un parser de sentenciaesiones booleanas.
+    Pequeña implementación de un parser de formulaesiones booleanas.
     Implementation of a recursive descent parser.
     Aquí la asignacion es un diccionario con variables.
     '''
@@ -68,7 +72,7 @@ class SentenciaBooleana:
         self.next_token = None
         self._avanza()
         self.asig = asig
-        return self.sentencia()
+        return self.formula()
 
 
     def _avanza(self):
@@ -86,20 +90,19 @@ class SentenciaBooleana:
         if not self._acepta(token_type):
             raise SyntaxError('Expected ' + token_type)
 
-    def sentencia(self):
+    def formula(self):
         '''
-        sentencia : conjuncion | conjuncion ∨ sentencia
+        formula : conjuncion | conjuncion ∨ formula
         '''
-        sentencia_value = self.conjuncion()
+        formula_value = self.conjuncion()
         if self._acepta('OR'):
-            sentencia_value = sentencia_value | self.sentencia()
-        return sentencia_value
+            formula_value = formula_value | self.formula()
+        return formula_value
 
     def conjuncion(self):
         '''
         conjuncion : clausula | clausula ∧ conjuncion
         '''
-
         conj_value = self.clausula()
         if self._acepta('AND'):
             conj_value = conj_value & self.conjuncion()
@@ -107,52 +110,24 @@ class SentenciaBooleana:
 
     def clausula(self):
         '''
-        clausula : CONST | (sentencia)
+        clausula : CONST | (formula)
 
         '''
         # Si aparece un parentesis
+
         if self._acepta('LPAREN'):
-            sentencia_value = self.sentencia()
+            formula_value = self.formula()
             self._espera('RPAREN')
-            return sentencia_value
+            return formula_value
         elif self._acepta('CONST'):
             return self.asig[self.current_token.value]
 
-def satisfacible(sentencia, text):
 
-    asig_aux = sentencia.asig.copy()
-
-    for n in range(0, (len(asig_aux.keys()) ** 2)):
-        m = n
-        for v in asig_aux.keys():
-            asig_aux[v] = bool(m % 2)
-            m = m >> 1
-            resul = prueba_asignacion(asig_aux, text)
-            if resul:
-                return asig_aux
-    return False
-
-def prueba_asignacion(asignacion, text):
-    tmp = SentenciaBooleana()
-    return tmp.parse(text, asignacion)
-
-e = SentenciaBooleana()
-text='x ∨ (y ∧ z ∧ x)'
-print(e.parse(text,{'x':False, 'y':False, 'z':True}))
-print(satisfacible(e, text))
-
-'''
-Explicacion del uso de la operacion % 25:
-
-Se utiliza para castear un número entero a una letra del abecedario. Se hace char chr(97 + (self.pos%25))
-donde 0x97 es el codigo ASCII de la primera letra del abecedario y 25 es el numero de letras que tienen el 
-abecedario ASCII. Por lo que se calcula para un numero la letra del abecedario que le corresponde
-'''
 
 class GeneracionSentencias:
-
     def __init__(self, pos):
         self.pos = pos
+        self.notp = False
 
     def sentencia(self):
         '''
@@ -160,11 +135,25 @@ class GeneracionSentencias:
         '''
         if self.pos % 2 == 0:
             self.pos = self.pos >> 1
+            #randomly add negation
+            if self.pos%2 == 1:
+                self.notp=True
+                self.pos = self.pos >> 1
+                return '¬' + self.conjuncion()
             return self.conjuncion()
         else:
             self.pos = self.pos >> 1
             resultado = self.conjuncion()
-            return  resultado+ "∨" + self.sentencia()
+            #randomly add negation
+            if self.pos%2 == 1:
+                self.notp=True
+                self.pos = self.pos >> 1
+                if self.pos%2 == 1:
+                    self.notp=True
+                    self.pos = self.pos >> 1
+                    return '¬' + resultado + "∧" + self.sentencia()
+                return resultado + "∨" + '¬' + self.sentencia()
+            return resultado + "∨" + self.sentencia()
 
 
     def conjuncion(self):
@@ -173,10 +162,24 @@ class GeneracionSentencias:
         '''
         if self.pos%2 == 0:
             self.pos = self.pos >> 1
+            #randomly add negation
+            if self.pos%2 == 1:
+                self.notp=True
+                self.pos = self.pos >> 1
+                return '¬' + self.clausula()
             return self.clausula()
         else:
             self.pos = self.pos >> 1
             resultado = self.clausula()
+            #randomly add negation
+            if self.pos%2 == 1:
+                self.notp=True
+                self.pos = self.pos >> 1
+                if self.pos%2 == 1:
+                    self.notp=True
+                    self.pos = self.pos >> 1
+                    return '¬' + resultado + "∧" + self.conjuncion()
+                return resultado + "∧" + '¬' + self.conjuncion()
             return  resultado + "∧" + self.conjuncion()
 
 
@@ -187,7 +190,68 @@ class GeneracionSentencias:
         if self.pos%2 == 0:
             self.pos = self.pos >> 1
             resultado, self.pos = chr(97 + (self.pos%25)), self.pos//25
+            #randomly add negation
+            if self.pos%2 == 1:
+                self.notp=True
+                self.pos = self.pos >> 1
+                return '¬' + resultado
             return resultado
         else:
             self.pos = self.pos >> 1
+            #randomly add negation
+            if self.pos%2 == 1:
+                self.notp=True
+                self.pos = self.pos >> 1
+                return '¬' + '(' + self.sentencia() + ')'
             return '(' + self.sentencia() + ')'
+
+
+
+class SentenciaGeneral(FormulaBooleana):
+
+    def clausula(self):
+        '''
+            clausula : ¬ CONST | ¬ (sentencia)
+        '''
+        #si aparece un not
+        if self._acepta('NOT'):
+            if self._acepta('CONST'):
+                return not self.asig[self.current_token.value]
+            elif self._acepta('LPAREN'):
+                sentencia_value = self.formula()
+                self._espera('RPAREN')
+                return not sentencia_value
+        # Si aparece un parentesis
+        elif self._acepta('LPAREN'):
+            formula_value = self.formula()
+            self._espera('RPAREN')
+            return formula_value
+        elif self._acepta('CONST'):
+            return self.asig[self.current_token.value]
+
+
+
+if __name__ == '__main__':
+
+    iters=1000
+
+    sentencias=[]
+
+    sentencias_not=[]
+
+    print(list(lista_tokens(master_pattern, 'x ¬ y')))
+
+    e = FormulaBooleana()
+    print(e.parse('x ∨ (y ∧ y ∧ x)', {'x': False, 'y': False}))
+
+    e = SentenciaGeneral()
+    print(e.parse('x ∨ ¬(y ∧ ¬y ∧ x)',{'x':True, 'y':False}))
+
+    for i in range(iters):
+        e = GeneracionSentencias(i)
+        sentencias.insert(i,e.sentencia())
+        if e.notp == True:
+            sentencias_not.append([sentencias[i],i])
+
+    print(sentencias)
+    print(sentencias_not)
