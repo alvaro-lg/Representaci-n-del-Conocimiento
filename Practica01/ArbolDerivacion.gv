@@ -1,0 +1,42 @@
+// Arbol de derivacion
+digraph {
+	0 [label=Sentencia]
+	1 [label=Conjuncion]
+	0 -> 1
+	2 [label=Clausula]
+	1 -> 2
+	3 [label=x]
+	2 -> 3
+	4 [label=OR]
+	0 -> 4
+	5 [label=Sentencia]
+	0 -> 5
+	6 [label=Conjuncion]
+	5 -> 6
+	7 [label=Clausula]
+	6 -> 7
+	8 [label="(Sentencia)"]
+	7 -> 8
+	9 [label=Conjuncion]
+	8 -> 9
+	10 [label=Clausula]
+	9 -> 10
+	11 [label=y]
+	10 -> 11
+	12 [label=AND]
+	9 -> 12
+	13 [label=Conjuncion]
+	9 -> 13
+	14 [label=Clausula]
+	13 -> 14
+	15 [label=y]
+	14 -> 15
+	16 [label=AND]
+	13 -> 16
+	17 [label=Conjuncion]
+	13 -> 17
+	18 [label=Clausula]
+	17 -> 18
+	19 [label=x]
+	18 -> 19
+}
