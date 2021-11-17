@@ -15,28 +15,32 @@ digraph {
 	5 -> 6
 	7 [label=Clausula]
 	6 -> 7
-	8 [label="(Sentencia)"]
+	8 [label=NOT]
 	7 -> 8
-	9 [label=Conjuncion]
-	8 -> 9
-	10 [label=Clausula]
+	9 [label="(Sentencia)"]
+	7 -> 9
+	10 [label=Conjuncion]
 	9 -> 10
-	11 [label=y]
+	11 [label=Clausula]
 	10 -> 11
-	12 [label=AND]
-	9 -> 12
-	13 [label=Conjuncion]
-	9 -> 13
-	14 [label=Clausula]
-	13 -> 14
-	15 [label=y]
+	12 [label=y]
+	11 -> 12
+	13 [label=AND]
+	10 -> 13
+	14 [label=Conjuncion]
+	10 -> 14
+	15 [label=Clausula]
 	14 -> 15
-	16 [label=AND]
-	13 -> 16
-	17 [label=Conjuncion]
-	13 -> 17
-	18 [label=Clausula]
-	17 -> 18
-	19 [label=x]
-	18 -> 19
+	16 [label=NOT]
+	15 -> 16
+	17 [label=y]
+	15 -> 17
+	18 [label=AND]
+	14 -> 18
+	19 [label=Conjuncion]
+	14 -> 19
+	20 [label=Clausula]
+	19 -> 20
+	21 [label=x]
+	20 -> 21
 }
