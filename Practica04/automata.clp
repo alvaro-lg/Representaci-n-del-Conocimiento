@@ -1,8 +1,4 @@
-(defrule transicion_q0_0
-  ?estado_actual <-(estado q0)
-  ?simbolo_actual <-(caracter "0")
-  ?cinta <-(entrada  ?siguiente $?otros)
- =>
+(defrule transicion_q0_0 ?estado_actual <-(estado q0) ?simbolo_actual <-(caracter "0") ?cinta <-(entrada  ?siguiente $?otros) =>
   (retract ?estado_actual)
   (retract ?simbolo_actual)
   (retract ?cinta)
