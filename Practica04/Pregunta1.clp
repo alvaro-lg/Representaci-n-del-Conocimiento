@@ -1,15 +1,14 @@
-
 (deffacts initial
   (estado q0)
   (caracter "0")
-  (entrada "0" "0" "1" "1")
+  (entrada "0" "1" "1" "lambda")
 )
 
-(defrule estado_final
-  ?cinta <-(entrada)
-=>
-  (assert (estado q2))
-  (printout t "Palabra aceptada" crlf)
+(defrule acepta_palabra
+  ?estado_actual <- (estado q2)
+  ?cinta <- (entrada)
+ =>
+  (printout t "Palabra Aceptada" crlf)
 )
 
 (defrule transicion_q0_0
@@ -23,7 +22,7 @@
   (assert (caracter ?siguiente))
   (assert (estado q1))
   (assert (entrada $?otros))
-  (printout t ?siguiente crlf)
+  (printout t "q0 -> 0 -> q1" crlf)
 )
 
 (defrule transicion_q0_1
@@ -37,7 +36,7 @@
   (assert (caracter ?siguiente))
   (assert (estado q0))
   (assert (entrada $?otros))
-  (printout t ?siguiente crlf)
+  (printout t "q0 -> 1 -> q0" crlf)
 )
 
 (defrule transicion_q1_0
@@ -51,7 +50,7 @@
   (assert (caracter ?siguiente))
   (assert (estado q2))
   (assert (entrada $?otros))
-  (printout t ?siguiente crlf)
+  (printout t "q1 -> 0 -> q2" crlf)
 )
 
 (defrule transicion_q1_1
@@ -65,7 +64,7 @@
   (assert (caracter ?siguiente))
   (assert (estado q1))
   (assert (entrada $?otros))
-  (printout t ?siguiente crlf)
+  (printout t "q1 -> 1 -> q1" crlf)
 )
 
 (defrule transicion_q2_0
@@ -79,7 +78,7 @@
   (assert (caracter ?siguiente))
   (assert (estado q1))
   (assert (entrada $?otros))
-  (printout t ?siguiente crlf)
+  (printout t "q2 -> 0 -> q1" crlf)
 )
 
 (defrule transicion_q2_1
@@ -93,5 +92,5 @@
   (assert (caracter ?siguiente))
   (assert (estado q2))
   (assert (entrada $?otros))
-  (printout t ?siguiente crlf)
+  (printout t "q2 -> 1 -> q2" crlf)
 )
