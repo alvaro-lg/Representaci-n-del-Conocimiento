@@ -2,15 +2,15 @@
   (estado q0)
   (caracter "1")
   (entrada "0" "0" "0" "lambda")
-  (transicion q0 "1" q0)
-  (transicion q0 "0" q0)
-  (transicion q0 "0" q1)
   (transicion q1 "0" q2)
+  (transicion q0 "0" q1)
+  (transicion q0 "1" q0)
+  (transicion q0 "0" q0)  
 )
 
 (defrule acepta_palabra
   ?estado_actual <- (estado q2)
-  ?cinta <- (entrada ?siguiente)
+  ?cinta <- (entrada)
  =>
   (printout t "Palabra Aceptada" crlf)
 )

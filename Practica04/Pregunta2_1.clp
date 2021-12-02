@@ -11,8 +11,8 @@
   (printout t "Palabra Aceptada" crlf)
 )
 
-(defrule transicion_q0_0
-  ?estado_actual <- (estado q0)
+(defrule transicion_q1_0
+  ?estado_actual <- (estado q1)
   ?simbolo_actual <- (caracter "0")
   ?cinta <- (entrada ?siguiente $?otros)
  =>
@@ -20,12 +20,11 @@
   (retract ?simbolo_actual)
   (retract ?cinta)
   (assert (caracter ?siguiente))
-  (assert (estado q0))
-  (assert (estado q1))
+  (assert (estado q2))
   (assert (entrada $?otros))
-  (printout t "q0 -> 0 -> q0" crlf)
-  (printout t "q0 -> 0 -> q1" crlf)
+  (printout t "q1 -> 0 -> q2" crlf)
 )
+
 
 (defrule transicion_q0_1
   ?estado_actual <- (estado q0)
@@ -41,8 +40,8 @@
   (printout t "q0 -> 1 -> q0" crlf)
 )
 
-(defrule transicion_q1_0
-  ?estado_actual <- (estado q1)
+(defrule transicion_q0_0
+  ?estado_actual <- (estado q0)
   ?simbolo_actual <- (caracter "0")
   ?cinta <- (entrada ?siguiente $?otros)
  =>
@@ -50,7 +49,10 @@
   (retract ?simbolo_actual)
   (retract ?cinta)
   (assert (caracter ?siguiente))
-  (assert (estado q2))
+  (assert (estado q1))
+  (assert (estado q0))
   (assert (entrada $?otros))
-  (printout t "q1 -> 0 -> q2" crlf)
+  (printout t "q0 -> 0 -> q0" crlf)
+  (printout t "q0 -> 0 -> q1" crlf)
 )
+
