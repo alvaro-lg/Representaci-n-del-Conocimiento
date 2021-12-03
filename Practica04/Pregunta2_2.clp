@@ -1,31 +1,39 @@
 (deffacts initial
-  (estado q0)
-  (caracter "1")
-  (entrada "0" "0" "0" "lambda")
+  (automata q0 "1" "1" "0" "0" "$")
   (transicion q1 "0" q2)
   (transicion q0 "0" q1)
   (transicion q0 "1" q0)
-  (transicion q0 "0" q0)  
+  (transicion q0 "0" q0)
 )
 
 (defrule acepta_palabra
-  ?estado_actual <- (estado q2)
-  ?cinta <- (entrada)
+  (declare (salience 0))
+  (automata q2 "$")
  =>
   (printout t "Palabra Aceptada" crlf)
 )
 
-(defrule procesa
-  ?transicion <- (transicion ?qstart ?char ?qend)
-  ?estado_actual <- (estado ?qstart)
-  ?simbolo_actual <- (caracter ?char)
-  ?cinta <- (entrada ?siguiente $?otros)
+(defrule rechaza_palabra
+  (declare (salience 0))
+  (not (automata q2 "$"))
  =>
-  (retract ?estado_actual)
-  (retract ?cinta)
-  (retract ?simbolo_actual)
-  (assert (entrada $?otros))
-  (assert (estado ?qend))
-  (assert (caracter ?siguiente))
+  (printout t "Palabra Rechazada" crlf)
+)
+
+(defrule error
+  (declare (salience 1))
+  ?automata <- (automata ?qaux $siguiente $?otros)
+ =>
+  (retract ?automata)
+)
+
+
+(defrule transicciona
+  (declare (salience 2))
+  ?transicion <- (transicion ?qstart ?char ?qend)
+  ?automata <- (automata ?qstart ?char $?otros)
+ =>
+  (retract ?automata)
+  (assert (automata ?qend ?otros))
   (printout t ?qstart " -> " ?char " -> " ?qend crlf)
 )
