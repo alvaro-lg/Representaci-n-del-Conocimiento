@@ -7,9 +7,9 @@ plt.rcParams["figure.autolayout"] = True
 MAX_ITERS = 15
 
 # Matriz de adyacencia con pesos entre las distintas páginas web
-M = np.array([[0, 0.5, 0.5, 0],
-              [0.5, 0, 0.5, 0],
-              [0, 0, 0, 1],
+M = np.array([[0, 1/5, 1/5, 0],
+              [1/5, 0, 1/5, 0],
+              [0, 0, 0, 1/5],
               [0, 0, 0, 0]
              ])
 
