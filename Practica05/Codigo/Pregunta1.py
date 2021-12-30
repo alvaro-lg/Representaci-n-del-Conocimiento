@@ -8,8 +8,8 @@ MAX_ITERS = 15
 
 # Matriz de adyacencia con pesos entre las distintas p ́aginas web
 M = np.array([[0, 0.5, 0.5],
-                [0.5, 0, 0.5],
-                [1, 0, 0]
+            [0.5, 0, 0.5],
+            [1, 0, 0]
 ])
 
 # Distribucion inicial de probabilidades

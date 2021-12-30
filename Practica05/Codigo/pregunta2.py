@@ -6,15 +6,15 @@ plt.rcParams["figure.autolayout"] = True
 
 MAX_ITERS = 15
 
-# Matriz de adyacencia con pesos entre las distintas páginas web
-M = np.array([[0, 1/5, 1/5, 0],
-              [1/5, 0, 1/5, 0],
-              [0, 0, 0, 1/5],
-              [0, 0, 0, 0]
-             ])
+# Matriz de adyacencia con pesos entre las distintas p ́aginas web
+M = np.array([[0, 0.5, 0.5, 0],
+            [0.5, 0, 0.5, 0],
+            [0, 0, 0, 1],
+            [0, 0, 0, 1]
+])
 
-# Distribucion de probabilidad segun enlaces por pagina
-v = np.array([1/5, 1/5, 2/5, 1/5])
+# Distribucion inicial de probabilidades
+v = np.array([0.1,0.2,0.6, 0.1])
 
 def nextIter(v, M):
     return v @ M
