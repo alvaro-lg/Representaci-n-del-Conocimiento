@@ -1,0 +1,8 @@
+digraph G {
+   pagina_A -> pagina_B
+   pagina_A -> pagina_C
+   pagina_B -> pagina_A
+   pagina_B -> pagina_C
+   pagina_C -> pagina_D
+   pagina_D -> pagina_D
+}
